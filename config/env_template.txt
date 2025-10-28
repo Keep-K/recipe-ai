@@ -1,0 +1,41 @@
+# Recipe AI System Configuration
+
+# OpenAI API (멀티 키 지원 - 최대 10개)
+OPENAI_API_KEY=your-api-key-here
+OPENAI_API_KEY_2=your-second-api-key-here
+OPENAI_API_KEY_3=your-third-api-key-here
+OPENAI_API_KEY_4=your-fourth-api-key-here
+OPENAI_API_KEY_5=your-fifth-api-key-here
+OPENAI_API_KEY_6=your-sixth-api-key-here
+OPENAI_API_KEY_7=your-seventh-api-key-here
+OPENAI_API_KEY_8=your-eighth-api-key-here
+OPENAI_API_KEY_9=your-ninth-api-key-here
+OPENAI_API_KEY_10=your-tenth-api-key-here
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_MAX_TOKENS=700
+OPENAI_TEMPERATURE=0.2
+OPENAI_MAX_RETRIES=6
+OPENAI_MAX_BACKOFF=30
+
+# PostgreSQL Database
+DB_NAME=recipe_ai_db
+DB_USER=recipe_keep
+DB_PASSWORD=wkwjsrj4510*
+DB_HOST=localhost
+DB_PORT=5432
+
+# Crawling Settings
+RECIPE_TYPE=밑반찬
+RECIPE_SITUATION=일상
+RECIPE_INGREDIENT=소고기
+RECIPE_METHOD=볶음
+MAX_RECIPES=10
+CRAWLING_DELAY=0.5
+
+# Translation Settings (1.0 = 권장, 0.5 = 빠름, 2.0 = 안전)
+TRANSLATION_DELAY=1.0
+
+# Vectorization Settings
+USE_OPENAI_EMBEDDINGS=true
+VECTORIZATION_BATCH_SIZE=100
+
