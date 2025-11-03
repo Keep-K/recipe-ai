@@ -39,6 +39,8 @@ class RecipeDB:
                     user=self.user,
                     password=os.getenv('DB_PASSWORD', '')
                 )
+            # 트랜잭션 중단 상태가 헬스 체크 등에 영향을 주지 않도록 자동 커밋
+            self.conn.autocommit = True
             self.cursor = self.conn.cursor()
             logger.info("✅ Connected to database")
         except Exception as e:
