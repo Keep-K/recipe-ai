@@ -25,17 +25,22 @@ class RecipeDB:
         self.cursor = None
     
     def connect(self):
-        """DB 연결 (TCP 연결 사용)"""
+        """DB 연결: 우선순위 1) DATABASE_URL, 2) 로컬 기본값"""
         try:
-            # localhost를 명시하여 TCP 연결 사용 (비밀번호 인증)
-            self.conn = psycopg2.connect(
-                host='localhost',
-                database=self.db_name,
-                user=self.user,
-                password=os.getenv('DB_PASSWORD', '')
-            )
+            database_url = os.getenv('DATABASE_URL')
+            if database_url:
+                # Railway/클라우드 환경: DATABASE_URL 사용
+                self.conn = psycopg2.connect(database_url)
+            else:
+                # 로컬 개발 환경: 명시적 파라미터 사용
+                self.conn = psycopg2.connect(
+                    host=os.getenv('DB_HOST', 'localhost'),
+                    database=self.db_name,
+                    user=self.user,
+                    password=os.getenv('DB_PASSWORD', '')
+                )
             self.cursor = self.conn.cursor()
-            logger.info(f"✅ Connected to {self.db_name}")
+            logger.info("✅ Connected to database")
         except Exception as e:
             logger.error(f"❌ DB connection failed: {e}")
             raise
