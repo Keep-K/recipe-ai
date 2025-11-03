@@ -243,6 +243,12 @@ async def root():
 async def health_check():
     """상세 헬스 체크"""
     try:
+        # 이전 오류로 트랜잭션이 중단 상태면 안전하게 복구
+        try:
+            if getattr(db, 'conn', None):
+                db.conn.rollback()
+        except Exception:
+            pass
         # DB 연결 확인
         db.cursor.execute("SELECT COUNT(*) FROM recipes")
         recipe_count = db.cursor.fetchone()[0]
