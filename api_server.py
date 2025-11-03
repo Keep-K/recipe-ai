@@ -243,15 +243,31 @@ async def root():
 async def health_check():
     """상세 헬스 체크"""
     try:
-        # 이전 오류로 트랜잭션이 중단 상태면 안전하게 복구
+        # 독립 연결로 헬스 체크 (기존 커넥션의 aborted 상태 영향 제거)
+        import os as _os
+        import psycopg2 as _psycopg2
+        tmp_conn = None
+        tmp_cur = None
         try:
-            if getattr(db, 'conn', None):
-                db.conn.rollback()
-        except Exception:
-            pass
-        # DB 연결 확인
-        db.cursor.execute("SELECT COUNT(*) FROM recipes")
-        recipe_count = db.cursor.fetchone()[0]
+            dsn = _os.getenv('DATABASE_URL')
+            if dsn:
+                tmp_conn = _psycopg2.connect(dsn)
+            else:
+                tmp_conn = _psycopg2.connect(
+                    host=_os.getenv('DB_HOST', 'localhost'),
+                    database=_os.getenv('DB_NAME', 'recipe_ai_db'),
+                    user=_os.getenv('DB_USER', 'recipe_keep'),
+                    password=_os.getenv('DB_PASSWORD', '')
+                )
+            tmp_conn.autocommit = True
+            tmp_cur = tmp_conn.cursor()
+            tmp_cur.execute("SELECT COUNT(*) FROM recipes")
+            recipe_count = tmp_cur.fetchone()[0]
+        finally:
+            if tmp_cur:
+                tmp_cur.close()
+            if tmp_conn:
+                tmp_conn.close()
         
         return {
             "status": "healthy",
