@@ -12,7 +12,7 @@ PostgreSQL + pgvector와 FastAPI를 Dockerfile로 Railway에 배포하는 방법
 2. **"Deploy from Dockerfile"** 선택
 3. **Source**: GitHub 저장소 연결
    - 저장소: `Keep-K/recope-ai` (또는 본인 저장소)
-   - **Root Directory**: `recipe_ai_system/docker/postgres`
+   - **Root Directory**: `docker/postgres` ⚠️ (저장소 루트가 `recipe_ai_system`이므로)
 4. **Service Name**: `postgres` (또는 원하는 이름)
 
 #### 환경 변수 설정
@@ -48,7 +48,7 @@ POSTGRES_DB=railway
 1. 같은 프로젝트에서 **"New Service"** 클릭
 2. **"Deploy from Dockerfile"** 선택
 3. **Source**: 같은 GitHub 저장소
-   - **Root Directory**: `recipe_ai_system`
+   - **Root Directory**: `.` (또는 비워두기, 저장소 루트가 `recipe_ai_system`이므로)
 4. **Service Name**: `api` (또는 원하는 이름)
 
 #### 환경 변수 설정

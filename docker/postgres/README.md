@@ -8,7 +8,8 @@ Railway에 PostgreSQL + pgvector를 배포하기 위한 Dockerfile입니다.
 
 1. Railway 대시보드에서 **"New Project"** 또는 기존 프로젝트에 **"New Service"** 클릭
 2. **"Deploy from Dockerfile"** 선택
-3. 이 디렉토리(`docker/postgres`)를 선택하거나 GitHub 저장소 연결
+3. GitHub 저장소 연결: `https://github.com/Keep-K/recope-ai.git`
+4. **Root Directory**: `docker/postgres` (⚠️ 중요: `recipe_ai_system/docker/postgres`가 아님!)
 
 ### 2. 환경 변수 설정
 
