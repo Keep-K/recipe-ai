@@ -18,7 +18,8 @@ RUN cd /tmp && \
     rm -rf pgvector
 
 # 초기화 스크립트 복사
-COPY init-db.sql /docker-entrypoint-initdb.d/01-init-schema.sql
+# Railway의 Root Directory가 docker/postgres로 설정되어 있어야 함
+COPY ./init-db.sql /docker-entrypoint-initdb.d/01-init-schema.sql
 
 # 포트 노출
 EXPOSE 5432
