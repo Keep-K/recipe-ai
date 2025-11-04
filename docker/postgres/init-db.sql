@@ -60,3 +60,4 @@ CREATE INDEX IF NOT EXISTS idx_recipes_embedding
 -- 성공 메시지
 SELECT '✅ PostgreSQL + pgvector initialized successfully!' as status;
 
+

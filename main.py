@@ -153,8 +153,8 @@ def main():
     if '--no-prompt' in sys.argv:
         skip_prompt = True  # 배치 실행 시 프롬프트 건너뛰기
     
-    # 대화형 모드 (인자 없을 때만)
-    if len(sys.argv) == 1 and not skip_prompt:
+    # 대화형 모드 (인자 없을 때만) - 비대화식 환경(Railway)에서는 건너뛰기
+    if len(sys.argv) == 1 and not skip_prompt and sys.stdin.isatty():
         print("\n" + "="*60)
         print("🍳 Recipe AI System")
         print("="*60)
