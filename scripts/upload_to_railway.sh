@@ -21,8 +21,16 @@ LOCAL_DB_NAME="recipe_ai_db"
 LOCAL_DB_USER="recipe_keep"
 LOCAL_DB_PASSWORD="wkwjsrj4510*"
 
-# Railway DB 설정 (터미널에서 본 정보)
-RAILWAY_DB_URL="postgresql://postgres:SwGl5Zv8F0Qv69Pd6qmwQcvqxeBPQAt-@interchange.proxy.rlwy.net:23740/railway"
+# Railway DB 설정 (환경 변수에서 불러옴)
+# 사전에 `RAILWAY_DB_URL` 또는 `DATABASE_URL` 환경 변수를 설정해야 합니다.
+RAILWAY_DB_URL="${RAILWAY_DB_URL:-${DATABASE_URL:-}}"
+
+if [ -z "$RAILWAY_DB_URL" ]; then
+    log_error "Railway DB URL이 설정되어 있지 않습니다."
+    log_error "환경 변수 RAILWAY_DB_URL 또는 DATABASE_URL을 설정한 후 다시 실행하세요."
+    log_warning "예: export RAILWAY_DB_URL='postgresql://USER:PASSWORD@HOST:PORT/DBNAME'"
+    exit 1
+fi
 
 log_info "=========================================="
 log_info "  로컬 DB → Railway DB 업로드"

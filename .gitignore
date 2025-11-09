@@ -16,6 +16,12 @@ config/.env
 data/*.json
 logs/*.log
 logs/*.jsonl
+backups/
+logs/
+data/
+
+# Railway secrets
+scripts/utils/railway.env
 
 # IDE
 .vscode/
