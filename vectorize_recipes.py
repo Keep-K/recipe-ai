@@ -6,10 +6,13 @@
 
 import os
 import logging
+import argparse
+from pathlib import Path
 from dotenv import load_dotenv
 from src.database import RecipeDB
 from src.vectorizer import RecipeVectorizer
 
+# 기본 .env 로드
 load_dotenv('config/.env')
 
 logging.basicConfig(
@@ -24,6 +27,31 @@ logger = logging.getLogger(__name__)
 
 
 def main():
+    parser = argparse.ArgumentParser(description="레시피 벡터화 파이프라인")
+    parser.add_argument(
+        '--env-file',
+        type=str,
+        help='추가로 로드할 .env 파일 경로 (예: config/.env.railway)'
+    )
+    parser.add_argument(
+        '--db-url',
+        type=str,
+        help='직접 지정할 DATABASE_URL (이 인자는 .env 값을 덮어씀)'
+    )
+    args = parser.parse_args()
+
+    # 추가 env 파일 로드 (Railway 등)
+    if args.env_file:
+        env_path = Path(args.env_file)
+        if not env_path.exists():
+            raise FileNotFoundError(f"지정한 env 파일이 존재하지 않습니다: {env_path}")
+        load_dotenv(env_path, override=True)
+        logger.info(f"📄 추가 env 로딩: {env_path}")
+
+    if args.db_url:
+        os.environ['DATABASE_URL'] = args.db_url
+        logger.info("🔗 DATABASE_URL 인자 적용 완료")
+
     logger.info("=" * 60)
     logger.info("🤖 레시피 벡터화 시작")
     logger.info("=" * 60)

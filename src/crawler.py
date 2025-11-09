@@ -12,6 +12,7 @@ import json
 import time
 import logging
 from typing import List, Dict, Optional
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse, quote_plus
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +20,11 @@ logger = logging.getLogger(__name__)
 class RecipeCrawler:
     """10000recipe.com 레시피 크롤러"""
     
-    def __init__(self, delay: float = 1.0):
+    def __init__(self, delay: float = 1.0, max_pages: int = 10):
         self.base_url = "https://www.10000recipe.com"
         self.headers = {'User-Agent': 'Mozilla/5.0'}
         self.delay = delay
+        self.max_pages = max_pages
     
     def crawl_recipe(self, recipe_url: str) -> Optional[Dict]:
         """단일 레시피 크롤링"""
@@ -57,24 +59,66 @@ class RecipeCrawler:
             logger.error(f"Error crawling {recipe_url}: {e}")
             return None
     
+    def _build_page_url(self, base_url: str, page: int) -> str:
+        """페이지 번호를 적용한 URL 생성"""
+        if page <= 1:
+            return base_url
+        
+        parsed = urlparse(base_url)
+        query = parse_qs(parsed.query, keep_blank_values=True)
+        query['page'] = [str(page)]
+        new_query = urlencode(query, doseq=True)
+        return urlunparse(parsed._replace(query=new_query))
+    
     def get_recipe_urls(self, category_url: str, max_count: int = 10) -> List[str]:
-        """카테고리에서 레시피 URL 목록 추출"""
+        """카테고리/검색 결과에서 레시피 URL 목록 추출"""
+        urls: List[str] = []
+        visited = set()
+        page = 1
+        
         try:
-            response = requests.get(category_url, headers=self.headers, timeout=10)
-            if response.status_code != 200:
-                return []
+            while len(urls) < max_count and page <= self.max_pages:
+                page_url = self._build_page_url(category_url, page)
+                response = requests.get(page_url, headers=self.headers, timeout=10)
+                if response.status_code != 200:
+                    logger.warning(f"Failed to fetch page {page} ({response.status_code}) for {category_url}")
+                    break
+                
+                soup = BeautifulSoup(response.text, 'html.parser')
+                links = soup.select('#contents_area_full > ul > ul > li > div.common_sp_thumb > a')
+                
+                if not links:
+                    logger.debug(f"No links found on page {page} for {category_url}")
+                    break
+                
+                new_links = 0
+                for link in links:
+                    href = link.get('href')
+                    if not href:
+                        continue
+                    
+                    full_url = self.base_url + href
+                    if full_url in visited:
+                        continue
+                    
+                    visited.add(full_url)
+                    urls.append(full_url)
+                    new_links += 1
+                    
+                    if len(urls) >= max_count:
+                        break
+                
+                logger.info(f"Page {page}: collected {new_links} new recipe URLs (total: {len(urls)})")
+                
+                if new_links == 0:
+                    break
+                
+                page += 1
+                
+                if len(urls) < max_count:
+                    time.sleep(self.delay)
             
-            soup = BeautifulSoup(response.text, 'html.parser')
-            links = soup.select('#contents_area_full > ul > ul > li > div.common_sp_thumb > a')
-            
-            urls = []
-            for link in links[:max_count]:
-                href = link.get('href')
-                if href:
-                    urls.append(self.base_url + href)
-            
-            logger.info(f"Found {len(urls)} recipe URLs")
-            return urls
+            return urls[:max_count]
         except Exception as e:
             logger.error(f"Error getting recipe URLs: {e}")
             return []
@@ -169,4 +213,13 @@ def build_category_url(recipe_type: str, situation: str, ingredient: str, method
     
     return (f'https://www.10000recipe.com/recipe/list.html?'
             f'cat1={m}&cat2={s}&cat3={i}&cat4={t}&order=reco')
+
+
+def build_search_url(keyword: str, order: str = 'reco') -> str:
+    """키워드 검색 URL 생성"""
+    keyword = keyword.strip()
+    if not keyword:
+        raise ValueError("검색 키워드는 비어 있을 수 없습니다.")
+    return (f'https://www.10000recipe.com/recipe/list.html?'
+            f'q={quote_plus(keyword)}&order={order}')
 
